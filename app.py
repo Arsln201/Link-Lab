@@ -1,25 +1,16 @@
 from flask import Flask, request, jsonify, redirect, url_for
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    login_user,
-    logout_user,
-    login_required
-)
-
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import requests
 import json
 import csv
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor, Json
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
-
-# =====================================================
-# LOGIN SYSTEM
-# =====================================================
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -27,6 +18,10 @@ login_manager.login_view = "login"
 
 USERNAME = "Dino"
 PASSWORD = "Mars@201"
+
+MY_IPS = ["127.0.0.1", "192.168.0.109"]
+LOG_FILE = "logs.json"
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
 class User(UserMixin):
@@ -39,30 +34,110 @@ def load_user(user_id):
     return User(user_id)
 
 
-# =====================================================
-# SETTINGS
-# =====================================================
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL)
 
-MY_IPS = [
-    "127.0.0.1",
-    "192.168.0.109"
-]
 
-LOG_FILE = "logs.json"
+def init_db():
+    if not DATABASE_URL:
+        return
 
-# =====================================================
-# LOAD LOGS
-# =====================================================
+    conn = get_db_connection()
+    cur = conn.cursor()
 
-if os.path.exists(LOG_FILE):
-    try:
-        with open(LOG_FILE, "r") as f:
-            logs = json.load(f)
-    except:
-        logs = []
-else:
-    logs = []
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS logs (
+            id SERIAL PRIMARY KEY,
+            ip TEXT,
+            time TEXT,
+            user_agent TEXT,
+            client_type TEXT,
+            ip_info JSONB,
+            battery TEXT,
+            charging TEXT
+        )
+    """)
 
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def load_logs():
+    if DATABASE_URL:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        cur.execute("SELECT * FROM logs ORDER BY id ASC")
+        rows = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return [
+            {
+                "ip": row["ip"],
+                "time": row["time"],
+                "user_agent": row["user_agent"],
+                "client_type": row["client_type"],
+                "ip_info": row["ip_info"] or {},
+                "battery": row["battery"],
+                "charging": row["charging"]
+            }
+            for row in rows
+        ]
+
+    if os.path.exists(LOG_FILE):
+        try:
+            with open(LOG_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return []
+
+    return []
+
+
+def save_logs():
+    if not DATABASE_URL:
+        with open(LOG_FILE, "w") as f:
+            json.dump(logs, f, indent=4)
+
+
+def save_log_to_database(log_entry):
+    if not DATABASE_URL:
+        return
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO logs (
+            ip,
+            time,
+            user_agent,
+            client_type,
+            ip_info,
+            battery,
+            charging
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, (
+        log_entry["ip"],
+        log_entry["time"],
+        log_entry["user_agent"],
+        log_entry["client_type"],
+        Json(log_entry["ip_info"]),
+        log_entry["battery"],
+        log_entry["charging"]
+    ))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+init_db()
+logs = load_logs()
 
 stats = {
     "total_visits": 0,
@@ -76,45 +151,43 @@ stats = {
 
 unique_ips = set()
 
-# =====================================================
-# REBUILD STATS FROM LOGS
-# =====================================================
 
-for log in logs:
-    ip = log.get("ip")
-    client = log.get("client_type", "")
+def rebuild_stats():
+    stats["total_visits"] = 0
+    stats["instagram_visits"] = 0
+    stats["facebook_bots"] = 0
+    stats["mobile_visits"] = 0
+    stats["desktop_visits"] = 0
+    stats["unknown_visits"] = 0
 
-    if ip:
-        unique_ips.add(ip)
+    unique_ips.clear()
 
-    stats["total_visits"] += 1
+    for log in logs:
+        ip = log.get("ip")
+        client = log.get("client_type", "")
 
-    if "Instagram" in client:
-        stats["instagram_visits"] += 1
-    elif "Facebook Bot" in client:
-        stats["facebook_bots"] += 1
+        if ip:
+            unique_ips.add(ip)
 
-    if any(x in client for x in ["Android", "Instagram", "iPhone", "WhatsApp", "iPad"]):
-        stats["mobile_visits"] += 1
-    elif any(x in client for x in ["Windows", "Mac"]):
-        stats["desktop_visits"] += 1
-    else:
-        stats["unknown_visits"] += 1
+        stats["total_visits"] += 1
 
-stats["unique_visitors"] = len(unique_ips)
+        if "Instagram" in client:
+            stats["instagram_visits"] += 1
+        elif "Facebook Bot" in client:
+            stats["facebook_bots"] += 1
 
-# =====================================================
-# SAVE LOGS
-# =====================================================
+        if any(x in client for x in ["Android", "Instagram", "iPhone", "WhatsApp", "iPad"]):
+            stats["mobile_visits"] += 1
+        elif any(x in client for x in ["Windows", "Mac"]):
+            stats["desktop_visits"] += 1
+        else:
+            stats["unknown_visits"] += 1
 
-def save_logs():
-    with open(LOG_FILE, "w") as f:
-        json.dump(logs, f, indent=4)
+    stats["unique_visitors"] = len(unique_ips)
 
 
-# =====================================================
-# IP LOOKUP
-# =====================================================
+rebuild_stats()
+
 
 def get_ip_info(ip):
     try:
@@ -140,10 +213,6 @@ def get_ip_info(ip):
     return {}
 
 
-# =====================================================
-# DEVICE DETECTION
-# =====================================================
-
 def detect_client(user_agent):
     ua = (user_agent or "").lower()
 
@@ -153,7 +222,6 @@ def detect_client(user_agent):
     if "instagram" in ua:
         if "iphone" in ua:
             return "Instagram iPhone"
-
         if "android" in ua:
             if "sm-" in ua or "samsung" in ua:
                 return "Instagram Samsung"
@@ -203,10 +271,6 @@ def detect_client(user_agent):
 
     return "Unknown"
 
-
-# =====================================================
-# LOGIN PAGE
-# =====================================================
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -273,7 +337,6 @@ def login():
     <body>
         <div class="box">
             <h1>Cyber Login</h1>
-
             <form method="POST">
                 <input type="text" name="username" placeholder="Username">
                 <input type="password" name="password" placeholder="Password">
@@ -284,10 +347,6 @@ def login():
     </html>
     """
 
-
-# =====================================================
-# MAIN PAGE
-# =====================================================
 
 @app.route("/")
 def home():
@@ -302,7 +361,6 @@ def home():
     battery = request.args.get("battery")
     charging = request.args.get("charging")
 
-    # Ignore your own test visits
     if ip in MY_IPS:
         print("\n[ LOCAL TEST VISIT IGNORED ]")
         return """
@@ -313,28 +371,11 @@ def home():
 
     ip_info = get_ip_info(ip)
 
-    stats["total_visits"] += 1
-
-    unique_ips.add(ip)
-    stats["unique_visitors"] = len(unique_ips)
-
-    if "Instagram" in client_type:
-        stats["instagram_visits"] += 1
-    elif "Facebook Bot" in client_type:
-        stats["facebook_bots"] += 1
-
-    if any(x in client_type for x in ["Android", "Instagram", "iPhone", "WhatsApp", "iPad"]):
-        stats["mobile_visits"] += 1
-    elif any(x in client_type for x in ["Windows", "Mac"]):
-        stats["desktop_visits"] += 1
-    else:
-        stats["unknown_visits"] += 1
-
     log_entry = {
         "ip": ip,
-       "time": datetime.now(
-    ZoneInfo("Asia/Kolkata")
-).strftime("%Y-%m-%d %I:%M:%S %p"),
+        "time": datetime.now(
+            ZoneInfo("Asia/Kolkata")
+        ).strftime("%Y-%m-%d %I:%M:%S %p"),
         "user_agent": user_agent,
         "client_type": client_type,
         "ip_info": ip_info,
@@ -344,6 +385,8 @@ def home():
 
     logs.append(log_entry)
     save_logs()
+    save_log_to_database(log_entry)
+    rebuild_stats()
 
     print("\n===================================")
     print("[ NEW VISIT DETECTED ]")
@@ -461,10 +504,6 @@ def home():
     """
 
 
-# =====================================================
-# LOGOUT
-# =====================================================
-
 @app.route("/logout")
 @login_required
 def logout():
@@ -472,19 +511,11 @@ def logout():
     return redirect(url_for("login"))
 
 
-# =====================================================
-# LOGS
-# =====================================================
-
 @app.route("/logs")
 @login_required
 def show_logs():
     return jsonify(logs)
 
-
-# =====================================================
-# DASHBOARD
-# =====================================================
 
 @app.route("/dashboard")
 @login_required
@@ -551,7 +582,6 @@ def dashboard():
     </head>
 
     <body>
-
         <h1>⚡ Link Intelligence Dashboard</h1>
 
         <a href="/analytics">📊 Analytics</a>
@@ -563,30 +593,11 @@ def dashboard():
         <br><br>
 
         <div class="topbar">
-            <div class="stat">
-                <b>Total Visits</b><br><br>
-                {stats['total_visits']}
-            </div>
-
-            <div class="stat">
-                <b>Unique Visitors</b><br><br>
-                {stats['unique_visitors']}
-            </div>
-
-            <div class="stat">
-                <b>Mobile</b><br><br>
-                {stats['mobile_visits']}
-            </div>
-
-            <div class="stat">
-                <b>Desktop</b><br><br>
-                {stats['desktop_visits']}
-            </div>
-
-            <div class="stat">
-                <b>Instagram</b><br><br>
-                {stats['instagram_visits']}
-            </div>
+            <div class="stat"><b>Total Visits</b><br><br>{stats['total_visits']}</div>
+            <div class="stat"><b>Unique Visitors</b><br><br>{stats['unique_visitors']}</div>
+            <div class="stat"><b>Mobile</b><br><br>{stats['mobile_visits']}</div>
+            <div class="stat"><b>Desktop</b><br><br>{stats['desktop_visits']}</div>
+            <div class="stat"><b>Instagram</b><br><br>{stats['instagram_visits']}</div>
         </div>
 
         <hr>
@@ -603,15 +614,8 @@ def dashboard():
         battery = log.get("battery")
         charging = log.get("charging")
 
-        if battery is None:
-            battery_display = "Not supported"
-        else:
-            battery_display = f"{battery}%"
-
-        if charging is None:
-            charging_display = "Not supported"
-        else:
-            charging_display = charging
+        battery_display = "Not supported" if battery is None else f"{battery}%"
+        charging_display = "Not supported" if charging is None else charging
 
         html += f"""
         <div class="card visitor-card">
@@ -651,17 +655,12 @@ def dashboard():
             });
         }
         </script>
-
     </body>
     </html>
     """
 
     return html
 
-
-# =====================================================
-# ANALYTICS
-# =====================================================
 
 @app.route("/analytics")
 @login_required
@@ -709,10 +708,6 @@ def analytics():
     """
 
 
-# =====================================================
-# VISITOR MAP
-# =====================================================
-
 @app.route("/map")
 @login_required
 def visitor_map():
@@ -720,7 +715,6 @@ def visitor_map():
 
     for log in logs:
         ip_info = log.get("ip_info", {})
-
         lat = ip_info.get("latitude")
         lon = ip_info.get("longitude")
 
@@ -799,19 +793,11 @@ def visitor_map():
     return html.replace("MARKERS_HERE", markers_js)
 
 
-# =====================================================
-# EXPORT JSON
-# =====================================================
-
 @app.route("/export/json")
 @login_required
 def export_json():
     return jsonify(logs)
 
-
-# =====================================================
-# EXPORT CSV
-# =====================================================
 
 @app.route("/export/csv")
 @login_required
@@ -855,10 +841,6 @@ def export_csv():
     </h1>
     """
 
-
-# =====================================================
-# RUN
-# =====================================================
 
 if __name__ == "__main__":
     app.run(
