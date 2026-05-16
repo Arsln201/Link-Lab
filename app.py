@@ -214,48 +214,89 @@ def get_ip_info(ip):
 
 
 def detect_client(user_agent):
+
     ua = (user_agent or "").lower()
+
+    # FACEBOOK BOT
 
     if "facebookexternalhit" in ua:
         return "Facebook Bot"
 
+    # INSTAGRAM
+
     if "instagram" in ua:
+
         if "iphone" in ua:
             return "Instagram iPhone"
+
         if "android" in ua:
+
             if "sm-" in ua or "samsung" in ua:
                 return "Instagram Samsung"
+
             elif "oneplus" in ua:
                 return "Instagram OnePlus"
+
             elif "redmi" in ua or "mi " in ua or "xiaomi" in ua:
                 return "Instagram Xiaomi"
+
             elif "realme" in ua:
                 return "Instagram Realme"
+
             elif "vivo" in ua:
                 return "Instagram Vivo"
+
             elif "oppo" in ua:
                 return "Instagram Oppo"
+
+            elif "m21" in ua:
+                return "Samsung M21"
+
+            elif "a8" in ua:
+                return "Redmi 8A"
+
             else:
                 return "Instagram Android"
+
+    # WHATSAPP
 
     if "whatsapp" in ua:
         return "WhatsApp"
 
+    # ANDROID DEVICES
+
     if "android" in ua:
+
         if "sm-" in ua or "samsung" in ua:
+
+            if "m21" in ua:
+                return "Samsung M21"
+
             return "Samsung Android"
+
         elif "oneplus" in ua:
             return "OnePlus Android"
+
         elif "redmi" in ua or "mi " in ua or "xiaomi" in ua:
+
+            if "a8" in ua:
+                return "Redmi 8A Dual"
+
             return "Xiaomi Android"
+
         elif "realme" in ua:
             return "Realme Android"
+
         elif "vivo" in ua:
             return "Vivo Android"
+
         elif "oppo" in ua:
             return "Oppo Android"
+
         else:
             return "Android Device"
+
+    # APPLE
 
     if "iphone" in ua:
         return "iPhone"
@@ -263,10 +304,26 @@ def detect_client(user_agent):
     if "ipad" in ua:
         return "iPad"
 
+    # WINDOWS / MAC
+
     if "windows" in ua:
+
+        if "chrome" in ua:
+            return "Windows Chrome"
+
+        elif "firefox" in ua:
+            return "Windows Firefox"
+
         return "Windows PC"
 
     if "macintosh" in ua:
+
+        if "chrome" in ua:
+            return "Mac Chrome"
+
+        elif "safari" in ua:
+            return "Mac Safari"
+
         return "Mac"
 
     return "Unknown"
