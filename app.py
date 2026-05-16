@@ -720,20 +720,21 @@ def visitor_map():
 
     for log in logs:
         ip_info = log.get("ip_info", {})
+
         lat = ip_info.get("latitude")
         lon = ip_info.get("longitude")
 
-        if lat and lon:
+        if lat is not None and lon is not None:
             city = ip_info.get("city", "Unknown")
             country = ip_info.get("country", "Unknown")
             client = log.get("client_type", "Unknown")
 
-            markers_js += f"""
-            L.marker([{lat}, {lon}]).addTo(map)
-                .bindPopup("<b>{client}</b><br>{city}, {country}");
-            """
+            markers_js += """
+            L.marker([%s, %s]).addTo(map)
+                .bindPopup("<b>%s</b><br>%s, %s");
+            """ % (lat, lon, client, city, country)
 
-    return f"""
+    html = """
     <html>
     <head>
         <title>Visitor Map</title>
@@ -742,29 +743,29 @@ def visitor_map():
         <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
         <style>
-            body {{
+            body {
                 margin:0;
                 padding:0;
                 background:#0d1117;
                 color:white;
                 font-family:Arial;
-            }}
+            }
 
-            h1 {{
+            h1 {
                 text-align:center;
                 padding:15px;
                 color:#00ff99;
-            }}
+            }
 
-            a {{
+            a {
                 color:#00ff99;
                 margin-left:20px;
-            }}
+            }
 
-            #map {{
+            #map {
                 height:85vh;
                 width:100%;
-            }}
+            }
         </style>
     </head>
 
@@ -772,6 +773,8 @@ def visitor_map():
         <h1>🌍 Live Visitor Map</h1>
 
         <a href="/dashboard">⬅ Back to Dashboard</a>
+
+        <br><br>
 
         <div id="map"></div>
 
@@ -781,17 +784,19 @@ def visitor_map():
             var map = L.map('map').setView([20, 0], 2);
 
             L.tileLayer(
-                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                {{
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
                     maxZoom: 19
-                }}
+                }
             ).addTo(map);
 
-            {markers_js}
+            MARKERS_HERE
         </script>
     </body>
     </html>
     """
+
+    return html.replace("MARKERS_HERE", markers_js)
 
 
 # =====================================================
