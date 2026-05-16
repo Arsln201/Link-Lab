@@ -8,14 +8,13 @@ from flask_login import (
 )
 
 from datetime import datetime
-import pytz
+from zoneinfo import ZoneInfo
 import requests
 import json
 import csv
 import os
 
 app = Flask(__name__)
-india = pytz.timezone("Asia/Kolkata")
 app.secret_key = "supersecretkey"
 
 # =====================================================
@@ -333,7 +332,9 @@ def home():
 
     log_entry = {
         "ip": ip,
-       "time": str(datetime.now(india)),
+       "time": datetime.now(
+    ZoneInfo("Asia/Kolkata")
+).strftime("%Y-%m-%d %I:%M:%S %p"),
         "user_agent": user_agent,
         "client_type": client_type,
         "ip_info": ip_info,
