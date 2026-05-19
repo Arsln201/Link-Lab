@@ -632,11 +632,23 @@ def dashboard():
                 font-size:16px;
             }}
 
-            a {{
-                color:#00ff99;
-                text-decoration:none;
-                margin-right:15px;
-            }}
+            .nav-btn{{
+    background:#0d1117;
+    border:1px solid #00ff99;
+    padding:10px 14px;
+    border-radius:10px;
+    color:#00ff99;
+    text-decoration:none;
+    display:inline-block;
+    transition:0.3s;
+}}
+
+.nav-btn:hover{{
+    background:#00ff99;
+    color:black;
+    box-shadow:0 0 15px #00ff99;
+}}
+
         </style>
     </head>
 
@@ -687,48 +699,60 @@ def dashboard():
                 gap:12px;
             ">
 
-                <a href="/dashboard" style="
-                    background:#0d1117;
-                    border:1px solid #00ff99;
-                    padding:10px 14px;
-                    border-radius:10px;
-                ">🏠 Dashboard</a>
+              <a href="/dashboard" class="nav-btn" style="
+    background:#0d1117;
+    border:1px solid #00ff99;
+    padding:10px 14px;
+    border-radius:10px;
+">
+    🏠 Dashboard
+</a>
 
-                <a href="/analytics" style="
-                    background:#0d1117;
-                    border:1px solid #00ff99;
-                    padding:10px 14px;
-                    border-radius:10px;
-                ">📊 Analytics</a>
+<a href="/analytics" class="nav-btn" style="
+    background:#0d1117;
+    border:1px solid #00ff99;
+    padding:10px 14px;
+    border-radius:10px;
+">
+    📊 Analytics
+</a>
 
-                <a href="/map" style="
-                    background:#0d1117;
-                    border:1px solid #00ff99;
-                    padding:10px 14px;
-                    border-radius:10px;
-                ">🌍 Map</a>
+<a href="/map" class="nav-btn" style="
+    background:#0d1117;
+    border:1px solid #00ff99;
+    padding:10px 14px;
+    border-radius:10px;
+">
+    🌍 Map
+</a>
 
-                <a href="/export/json" style="
-                    background:#0d1117;
-                    border:1px solid #00ff99;
-                    padding:10px 14px;
-                    border-radius:10px;
-                ">📁 JSON</a>
+<a href="/export/json" class="nav-btn" style="
+    background:#0d1117;
+    border:1px solid #00ff99;
+    padding:10px 14px;
+    border-radius:10px;
+">
+    📁 JSON
+</a>
 
-                <a href="/export/csv" style="
-                    background:#0d1117;
-                    border:1px solid #00ff99;
-                    padding:10px 14px;
-                    border-radius:10px;
-                ">📄 CSV</a>
+<a href="/export/csv" class="nav-btn" style="
+    background:#0d1117;
+    border:1px solid #00ff99;
+    padding:10px 14px;
+    border-radius:10px;
+">
+    📄 CSV
+</a>
 
-                <a href="/logout" style="
-                    background:#2d1111;
-                    color:#ff7b72;
-                    border:1px solid #ff7b72;
-                    padding:10px 14px;
-                    border-radius:10px;
-                ">🚪 Logout</a>
+<a href="/logout" class="nav-btn" style="
+    background:#2d1111;
+    color:#ff7b72;
+    border:1px solid #ff7b72;
+    padding:10px 14px;
+    border-radius:10px;
+">
+    🚪 Logout
+</a>
 
             </div>
 
