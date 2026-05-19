@@ -10,9 +10,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor, Json
 
 app = Flask(__name__)
-app.config["SESSION_COOKIE_SECURE"] = True
-app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.secret_key = "supersecretkey"
 
 login_manager = LoginManager()
