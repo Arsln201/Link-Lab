@@ -641,14 +641,99 @@ def dashboard():
     </head>
 
     <body>
-        <h1>⚡ Link Intelligence Dashboard</h1>
 
-        <a href="/analytics">📊 Analytics</a>
-        <a href="/map">🌍 Visitor Map</a>
-        <a href="/export/json">📁 Export JSON</a>
-        <a href="/export/csv">📄 Export CSV</a>
-        <a href="/logout">🚪 Logout</a>
+        <div style="
+            background:#161b22;
+            border:1px solid #00ff99;
+            border-radius:16px;
+            padding:20px;
+            margin-bottom:25px;
+            box-shadow:0 0 18px rgba(0,255,153,0.15);
+        ">
 
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                flex-wrap:wrap;
+                gap:15px;
+            ">
+
+                <div>
+                    <h1 style="margin:0;">⚡ Link Intelligence Dashboard</h1>
+                    <p style="color:#8b949e;margin-top:8px;">
+                        Admin monitoring panel • PostgreSQL connected
+                    </p>
+                </div>
+
+                <div style="
+                    background:#003d2b;
+                    color:#00ff99;
+                    border:1px solid #00ff99;
+                    padding:10px 16px;
+                    border-radius:999px;
+                    font-weight:bold;
+                ">
+                    🟢 LIVE
+                </div>
+
+            </div>
+
+            <hr style="border:0;border-top:1px solid #30363d;margin:18px 0;">
+
+            <div style="
+                display:flex;
+                flex-wrap:wrap;
+                gap:12px;
+            ">
+
+                <a href="/dashboard" style="
+                    background:#0d1117;
+                    border:1px solid #00ff99;
+                    padding:10px 14px;
+                    border-radius:10px;
+                ">🏠 Dashboard</a>
+
+                <a href="/analytics" style="
+                    background:#0d1117;
+                    border:1px solid #00ff99;
+                    padding:10px 14px;
+                    border-radius:10px;
+                ">📊 Analytics</a>
+
+                <a href="/map" style="
+                    background:#0d1117;
+                    border:1px solid #00ff99;
+                    padding:10px 14px;
+                    border-radius:10px;
+                ">🌍 Map</a>
+
+                <a href="/export/json" style="
+                    background:#0d1117;
+                    border:1px solid #00ff99;
+                    padding:10px 14px;
+                    border-radius:10px;
+                ">📁 JSON</a>
+
+                <a href="/export/csv" style="
+                    background:#0d1117;
+                    border:1px solid #00ff99;
+                    padding:10px 14px;
+                    border-radius:10px;
+                ">📄 CSV</a>
+
+                <a href="/logout" style="
+                    background:#2d1111;
+                    color:#ff7b72;
+                    border:1px solid #ff7b72;
+                    padding:10px 14px;
+                    border-radius:10px;
+                ">🚪 Logout</a>
+
+            </div>
+
+        </div>
+        
         <br><br>
 
         <div class="topbar">
