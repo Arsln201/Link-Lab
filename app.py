@@ -57,7 +57,7 @@ def init_db():
             charging TEXT,
             gps_lat TEXT,
             gps_lon TEXT,
-            gps_accuracy TEXT,
+            gps_accuracy TEXT
         )
     """)
 
