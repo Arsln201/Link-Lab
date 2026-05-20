@@ -631,53 +631,43 @@ def track_page():
         <p id="status"></p>
 
         <script>
-            function getLocation() {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        let lat = position.coords.latitude;
-                        let lon = position.coords.longitude;
-                        let accuracy = position.coords.accuracy;
+function getLocation() {
+    document.getElementById("status").innerText =
+    "Requesting location...";
 
-                        if ("getBattery" in navigator) {
-    navigator.getBattery().then(function(battery) {
-        let level = Math.floor(battery.level * 100);
-        let charging = battery.charging ? "Yes" : "No";
+    if (!navigator.geolocation) {
+        document.getElementById("status").innerText =
+        "GPS not supported";
+        return;
+    }
 
-        fetch(
-            "/gps-update?lat=" + lat +
-            "&lon=" + lon +
-            "&accuracy=" + accuracy +
-            "&battery=" + level +
-            "&charging=" + charging
-        );
-    });
-} else {
-    fetch(
-        "/gps-update?lat=" + lat +
-        "&lon=" + lon +
-        "&accuracy=" + accuracy +
-        "&battery=Not supported" +
-        "&charging=Not supported"
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            let accuracy = position.coords.accuracy;
+
+            fetch(
+                "/gps-update?lat=" + lat +
+                "&lon=" + lon +
+                "&accuracy=" + accuracy
+            ).then(function() {
+                document.getElementById("status").innerText =
+                "Location received successfully.";
+            });
+        },
+        function(error) {
+            document.getElementById("status").innerText =
+            "Location error: " + error.message;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+        }
     );
 }
-
-                        ).then(() => {
-                            document.getElementById("status").innerText =
-                            "Location received successfully.";
-                        });
-                    },
-                    function(error) {
-                        document.getElementById("status").innerText =
-                        "Location permission denied.";
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0
-                    }
-                );
-            }
-        </script>
+</script>
     </body>
     </html>
     """
