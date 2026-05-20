@@ -980,7 +980,13 @@ Admin monitoring panel • PostgreSQL connected
         </div>
         
         <br><br>
-
+        
+        
+        <div style="
+        background:#0d1117;
+        padding:20px;
+        border-radius:20px;
+">
         <div class="topbar">
             <div class="stat"><b>Total Visits</b><br><br>{stats['total_visits']}</div>
             <div class="stat"><b>Unique Visitors</b><br><br>{stats['unique_visitors']}</div>
