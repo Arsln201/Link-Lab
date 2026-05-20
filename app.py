@@ -773,8 +773,8 @@ body::after {{
 
            .topbar {{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:18px;
+   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
     margin-bottom:25px;
 }}
 
@@ -791,6 +791,7 @@ body::after {{
 .stat:hover {{
     border-color:#00c8ff;
     box-shadow:0 0 18px rgba(0,200,255,0.25);
+    transform:translateY(-3px);
 }}
 
 .card {{
@@ -882,7 +883,7 @@ body::after {{
                 <div>
                  <h1 style="
     color:#00e5a8;
-    font-size:48px;
+    font-size:40px;
     margin-bottom:8px;
 ">
 ⚡ Link Intelligence Dashboard
