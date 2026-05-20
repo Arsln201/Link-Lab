@@ -61,6 +61,10 @@ def init_db():
         )
     """)
 
+    cur.execute("ALTER TABLE logs ADD COLUMN IF NOT EXISTS gps_lat TEXT")
+    cur.execute("ALTER TABLE logs ADD COLUMN IF NOT EXISTS gps_lon TEXT")
+    cur.execute("ALTER TABLE logs ADD COLUMN IF NOT EXISTS gps_accuracy TEXT")
+
     conn.commit()
     cur.close()
     conn.close()
