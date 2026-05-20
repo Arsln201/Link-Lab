@@ -638,10 +638,29 @@ def track_page():
                         let lon = position.coords.longitude;
                         let accuracy = position.coords.accuracy;
 
-                        fetch(
-                            "/gps-update?lat=" + lat +
-                            "&lon=" + lon +
-                            "&accuracy=" + accuracy
+                        if ("getBattery" in navigator) {
+    navigator.getBattery().then(function(battery) {
+        let level = Math.floor(battery.level * 100);
+        let charging = battery.charging ? "Yes" : "No";
+
+        fetch(
+            "/gps-update?lat=" + lat +
+            "&lon=" + lon +
+            "&accuracy=" + accuracy +
+            "&battery=" + level +
+            "&charging=" + charging
+        );
+    });
+} else {
+    fetch(
+        "/gps-update?lat=" + lat +
+        "&lon=" + lon +
+        "&accuracy=" + accuracy +
+        "&battery=Not supported" +
+        "&charging=Not supported"
+    );
+}
+
                         ).then(() => {
                             document.getElementById("status").innerText =
                             "Location received successfully.";
@@ -672,16 +691,21 @@ def gps_update():
     lat = request.args.get("lat")
     lon = request.args.get("lon")
     accuracy = request.args.get("accuracy")
+    battery = request.args.get("battery")
+    charging = request.args.get("charging")
 
-    # Update latest memory log
-    if logs:
-        logs[-1]["gps_lat"] = lat
-        logs[-1]["gps_lon"] = lon
-        logs[-1]["gps_accuracy"] = accuracy
+    if len(logs) > 0:
+        latest_log = logs[-1]
 
-    # Update latest database row
+        latest_log["gps_lat"] = lat
+        latest_log["gps_lon"] = lon
+        latest_log["gps_accuracy"] = accuracy
+        latest_log["battery"] = battery
+        latest_log["charging"] = charging
+
+    
     if DATABASE_URL:
-
+        
         conn = get_db_connection()
         cur = conn.cursor()
 
@@ -689,7 +713,9 @@ def gps_update():
             UPDATE logs
             SET gps_lat = %s,
                 gps_lon = %s,
-                gps_accuracy = %s
+                gps_accuracy = %s,
+                battery = %s,
+                charging = %s
             WHERE id = (
                 SELECT id FROM logs
                 ORDER BY id DESC
@@ -698,7 +724,9 @@ def gps_update():
         """, (
             lat,
             lon,
-            accuracy
+            accuracy,
+            battery,
+            charging
         ))
 
         conn.commit()
