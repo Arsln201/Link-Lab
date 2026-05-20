@@ -593,20 +593,26 @@ def dashboard():
                 padding:20px;
             }}
 
-            .topbar {{
-                display:flex;
-                gap:20px;
-                flex-wrap:wrap;
-                margin-bottom:25px;
-            }}
+           .topbar {{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:18px;
+    margin-bottom:25px;
+}}
 
-            .stat {{
-                background:#161b22;
-                border:1px solid #00ff99;
-                padding:15px;
-                border-radius:10px;
-                min-width:180px;
-            }}
+           .stat {{
+    background:#161b22;
+    border:1px solid #00ff99;
+    padding:22px;
+    border-radius:16px;
+    min-height:110px;
+    transition:0.3s;
+}}
+
+.stat:hover {{
+    transform:translateY(-4px);
+    box-shadow:0 0 18px rgba(0,255,153,0.35);
+}}
 
             .card {{
                 border:1px solid #00ff99;
@@ -696,7 +702,8 @@ def dashboard():
             <div style="
                 display:flex;
                 flex-wrap:wrap;
-                gap:12px;
+                gap:10px;
+                lign-items:center;
             ">
 
               <a href="/dashboard" class="nav-btn" style="
