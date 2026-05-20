@@ -733,15 +733,43 @@ def dashboard():
     <html>
     <head>
         <title>Cyber Dashboard</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
         <meta http-equiv="refresh" content="60">
 
         <style>
-            body {{
-                background:#0d1117;
-                color:#00e5a8;
-                font-family:Arial;
-                padding:20px;
-            }}
+            <style>
+    body {{
+        background:#0d1117;
+        color:#00e5a8;
+        font-family:'Inter', Arial, sans-serif;
+        padding:20px;
+        position:relative;
+        overflow-x:hidden;
+    }}
+
+    body::before {{
+        content:"";
+        position:fixed;
+        width:500px;
+        height:500px;
+        background:rgba(0,200,255,0.12);
+        filter:blur(120px);
+        top:-120px;
+        right:-120px;
+        z-index:-1;
+    }}
+
+    body::after {{
+        content:"";
+        position:fixed;
+        width:450px;
+        height:450px;
+        background:rgba(0,229,168,0.10);
+        filter:blur(120px);
+        bottom:-120px;
+        left:-120px;
+        z-index:-1;
+    }}
 
            .topbar {{
     display:grid;
@@ -750,7 +778,7 @@ def dashboard():
     margin-bottom:25px;
 }}
 
-           .stat {{
+.stat {{
     background:rgba(22,27,34,0.9);
     border:1px solid #30363d;
     padding:22px;
@@ -764,7 +792,7 @@ def dashboard():
     box-shadow:0 0 18px rgba(0,200,255,0.25);
 }}
 
-            .card {{
+.card {{
     border:1px solid #30363d;
     padding:18px;
     margin-bottom:16px;
@@ -777,6 +805,26 @@ def dashboard():
 .card:hover {{
     border-color:#00e5a8;
     box-shadow:0 0 18px rgba(0,229,168,0.25);
+}}
+
+.card {{
+    animation:fadeUp 0.45s ease;
+}}
+
+.stat {{
+    animation:fadeUp 0.45s ease;
+}}
+
+@keyframes fadeUp {{
+    from {{
+        opacity:0;
+        transform:translateY(10px);
+    }}
+
+    to {{
+        opacity:1;
+        transform:translateY(0);
+    }}
 }}
 
             input {{
