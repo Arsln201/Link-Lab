@@ -740,7 +740,7 @@ def dashboard():
             <style>
     body {{
         background:#0d1117;
-        color:#00e5a8;
+        color:#f0f6fc;
         font-family:'Inter', Arial, sans-serif;
         padding:20px;
         position:relative;
@@ -785,6 +785,7 @@ def dashboard():
     border-radius:16px;
     min-height:110px;
     transition:0.3s;
+    color:#f0f6fc;
 }}
 
 .stat:hover {{
@@ -800,6 +801,7 @@ def dashboard():
     background:rgba(22,27,34,0.85);
     backdrop-filter:blur(10px);
     transition:0.3s;
+    color:#f0f6fc;
 }}
 
 .card:hover {{
@@ -878,10 +880,22 @@ def dashboard():
             ">
 
                 <div>
-                    <h1 style="margin:0;">⚡ Link Intelligence Dashboard</h1>
-                    <p style="color:#8b949e;margin-top:8px;">
-                        Admin monitoring panel • PostgreSQL connected
-                    </p>
+                 <h1 style="
+    color:#00e5a8;
+    font-size:48px;
+    margin-bottom:8px;
+">
+⚡ Link Intelligence Dashboard
+</h1>
+
+<p style="
+    color:#8b949e;
+    margin-top:0;
+    margin-bottom:20px;
+">
+Admin monitoring panel • PostgreSQL connected
+</p>
+
                 </div>
 
                 <div style="
