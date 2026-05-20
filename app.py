@@ -738,7 +738,7 @@ def dashboard():
         <style>
             body {{
                 background:#0d1117;
-                color:#00ff99;
+                color:#00e5a8;
                 font-family:Arial;
                 padding:20px;
             }}
@@ -751,8 +751,8 @@ def dashboard():
 }}
 
            .stat {{
-    background:#161b22;
-    border:1px solid #00ff99;
+    background:rgba(22,27,34,0.9);
+    border:1px solid #30363d;
     padding:22px;
     border-radius:16px;
     min-height:110px;
@@ -760,22 +760,24 @@ def dashboard():
 }}
 
 .stat:hover {{
-    transform:translateY(-4px);
-    box-shadow:0 0 18px rgba(0,255,153,0.35);
+    border-color:#00c8ff;
+    box-shadow:0 0 18px rgba(0,200,255,0.25);
 }}
 
             .card {{
-                border:1px solid #00ff99;
-                padding:15px;
-                margin-bottom:15px;
-                border-radius:10px;
-                background:#161b22;
-                transition:0.3s;
-            }}
+    border:1px solid #30363d;
+    padding:18px;
+    margin-bottom:16px;
+    border-radius:16px;
+    background:rgba(22,27,34,0.85);
+    backdrop-filter:blur(10px);
+    transition:0.3s;
+}}
 
-            .card:hover {{
-                box-shadow:0 0 15px #00ff99;
-            }}
+.card:hover {{
+    border-color:#00e5a8;
+    box-shadow:0 0 18px rgba(0,229,168,0.25);
+}}
 
             input {{
                 width:100%;
