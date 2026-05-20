@@ -748,28 +748,28 @@ def dashboard():
     }}
 
     body::before {{
-        content:"";
-        position:fixed;
-        width:500px;
-        height:500px;
-        background:rgba(0,200,255,0.12);
-        filter:blur(120px);
-        top:-120px;
-        right:-120px;
-        z-index:-1;
-    }}
+    content:"";
+    position:fixed;
+    width:700px;
+    height:700px;
+    background:rgba(0,200,255,0.22);
+    filter:blur(140px);
+    top:-200px;
+    right:-200px;
+    z-index:-1;
+}}
 
-    body::after {{
-        content:"";
-        position:fixed;
-        width:450px;
-        height:450px;
-        background:rgba(0,229,168,0.10);
-        filter:blur(120px);
-        bottom:-120px;
-        left:-120px;
-        z-index:-1;
-    }}
+body::after {{
+    content:"";
+    position:fixed;
+    width:650px;
+    height:650px;
+    background:rgba(0,229,168,0.18);
+    filter:blur(140px);
+    bottom:-200px;
+    left:-200px;
+    z-index:-1;
+}}
 
            .topbar {{
     display:grid;
