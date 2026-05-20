@@ -917,7 +917,7 @@ def dashboard():
         >
     """
 
-    for log in reversed(logs[-20:]):
+    for log in reversed(logs[-10:]):
         battery = log.get("battery")
         charging = log.get("charging")
 
