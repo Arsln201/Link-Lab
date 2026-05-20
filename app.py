@@ -54,10 +54,10 @@ def init_db():
             client_type TEXT,
             ip_info JSONB,
             battery TEXT,
-            charging TEXT
+            charging TEXT,
             gps_lat TEXT,
             gps_lon TEXT,
-            gps_accuracy TEXT
+            gps_accuracy TEXT,
         )
     """)
 
