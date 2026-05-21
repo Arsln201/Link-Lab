@@ -995,6 +995,7 @@ Admin monitoring panel • PostgreSQL connected
             <div class="stat"><b>Desktop</b><br><br>{stats['desktop_visits']}</div>
             <div class="stat"><b>Instagram</b><br><br>{stats['instagram_visits']}</div>
         </div>
+        
 
         <hr>
 
@@ -1072,44 +1073,120 @@ Admin monitoring panel • PostgreSQL connected
 @app.route("/analytics")
 @login_required
 def analytics():
-    return f"""
+        return f"""
     <html>
     <head>
         <title>Analytics</title>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
         <style>
             body {{
                 background:#0d1117;
-                color:#00ff99;
-                font-family:Arial;
+                color:#f0f6fc;
+                font-family:'Inter', Arial, sans-serif;
                 padding:30px;
             }}
 
-            .card {{
-                background:#161b22;
-                border:1px solid #00ff99;
-                padding:20px;
-                margin-bottom:20px;
-                border-radius:10px;
+            a {{
+                color:#00e5a8;
+                text-decoration:none;
             }}
 
-            a {{
-                color:#00ff99;
+            .header {{
+                background:#161b22;
+                border:1px solid #30363d;
+                border-radius:18px;
+                padding:22px;
+                margin-bottom:25px;
+            }}
+
+            .grid {{
+                display:grid;
+                grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+                gap:20px;
+            }}
+
+            .card {{
+                background:rgba(22,27,34,0.9);
+                border:1px solid #30363d;
+                padding:22px;
+                border-radius:18px;
+            }}
+
+            h1 {{
+                color:#00e5a8;
+            }}
+
+            canvas {{
+                max-height:320px;
             }}
         </style>
     </head>
 
     <body>
-        <h1>📊 Cyber Analytics Panel</h1>
 
-        <a href="/dashboard">⬅ Back to Dashboard</a>
+        <div class="header">
+            <h1>📊 Cyber Analytics Panel</h1>
+            <a href="/dashboard">⬅ Back to Dashboard</a>
+        </div>
 
-        <div class="card"><h2>Total Visits: {stats['total_visits']}</h2></div>
-        <div class="card"><h2>Unique Visitors: {stats['unique_visitors']}</h2></div>
-        <div class="card"><h2>Instagram Visits: {stats['instagram_visits']}</h2></div>
-        <div class="card"><h2>Facebook Bots: {stats['facebook_bots']}</h2></div>
-        <div class="card"><h2>Mobile Visits: {stats['mobile_visits']}</h2></div>
-        <div class="card"><h2>Desktop Visits: {stats['desktop_visits']}</h2></div>
-        <div class="card"><h2>Unknown Visits: {stats['unknown_visits']}</h2></div>
+        <div class="grid">
+
+            <div class="card">
+                <h2>Device Distribution</h2>
+                <canvas id="deviceChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h2>Traffic Sources</h2>
+                <canvas id="sourceChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h2>Visitor Summary</h2>
+                <p>Total Visits: {stats['total_visits']}</p>
+                <p>Unique Visitors: {stats['unique_visitors']}</p>
+                <p>Mobile: {stats['mobile_visits']}</p>
+                <p>Desktop: {stats['desktop_visits']}</p>
+                <p>Unknown: {stats['unknown_visits']}</p>
+            </div>
+
+        </div>
+
+        <script>
+            new Chart(document.getElementById('deviceChart'), {{
+                type: 'doughnut',
+                data: {{
+                    labels: ['Mobile', 'Desktop', 'Unknown'],
+                    datasets: [{{
+                        data: [
+                            {stats['mobile_visits']},
+                            {stats['desktop_visits']},
+                            {stats['unknown_visits']}
+                        ],
+                        borderWidth: 1
+                    }}]
+                }}
+            }});
+
+            new Chart(document.getElementById('sourceChart'), {{
+                type: 'bar',
+                data: {{
+                    labels: ['Instagram', 'Facebook Bots', 'Other'],
+                    datasets: [{{
+                        label: 'Visits',
+                        data: [
+                            {stats['instagram_visits']},
+                            {stats['facebook_bots']},
+                            {stats['total_visits'] - stats['instagram_visits'] - stats['facebook_bots']}
+                        ],
+                        borderWidth: 1
+                    }}]
+                }}
+            }});
+        </script>
+
     </body>
     </html>
     """
