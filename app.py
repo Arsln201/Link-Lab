@@ -725,6 +725,17 @@ def gps_update():
 
     return "GPS updated"
 
+@app.route("/api/live-data")
+@login_required
+def live_data():
+    rebuild_stats()
+
+    recent_logs = logs[-10:]
+
+    return jsonify({
+        "stats": stats,
+        "logs": recent_logs
+    })
 
 @app.route("/dashboard")
 @login_required
@@ -734,7 +745,7 @@ def dashboard():
     <head>
         <title>Cyber Dashboard</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-        <meta http-equiv="refresh" content="60">
+       
 
         <style>
             <style>
@@ -989,11 +1000,15 @@ Admin monitoring panel • PostgreSQL connected
         border-radius:20px;
 ">
         <div class="topbar">
-            <div class="stat"><b>Total Visits</b><br><br>{stats['total_visits']}</div>
-            <div class="stat"><b>Unique Visitors</b><br><br>{stats['unique_visitors']}</div>
-            <div class="stat"><b>Mobile</b><br><br>{stats['mobile_visits']}</div>
-            <div class="stat"><b>Desktop</b><br><br>{stats['desktop_visits']}</div>
-            <div class="stat"><b>Instagram</b><br><br>{stats['instagram_visits']}</div>
+            <div class="stat"><b>Total Visits</b><br><br><span id="totalVisits">{stats['total_visits']}</span></div>
+
+           <div class="stat"><b>Unique Visitors</b><br><br><span id="uniqueVisitors">{stats['unique_visitors']}</span></div>
+
+           <div class="stat"><b>Mobile</b><br><br><span id="mobileVisits">{stats['mobile_visits']}</span></div>
+
+           <div class="stat"><b>Desktop</b><br><br><span id="desktopVisits">{stats['desktop_visits']}</span></div>
+
+           <div class="stat"><b>Instagram</b><br><br><span id="instagramVisits">{stats['instagram_visits']}</span></div>
         </div>
         
 
@@ -1043,26 +1058,56 @@ Admin monitoring panel • PostgreSQL connected
 
     html += """
         <script>
-        function filterLogs() {
-            let input = document.getElementById("searchInput").value.toLowerCase();
-            let cards = document.querySelectorAll(".visitor-card");
 
-            cards.forEach(card => {
-                let text = card.textContent.toLowerCase();
+function filterLogs() {
+    let input = document.getElementById("searchInput").value.toLowerCase();
+    let cards = document.querySelectorAll(".visitor-card");
 
-                if (input === "") {
-                    card.style.border = "1px solid #00ff99";
-                    card.style.boxShadow = "none";
-                } else if (text.includes(input)) {
-                    card.style.border = "2px solid yellow";
-                    card.style.boxShadow = "0 0 20px yellow";
-                } else {
-                    card.style.border = "1px solid #222";
-                    card.style.boxShadow = "none";
-                }
-            });
+    cards.forEach(card => {
+        let text = card.textContent.toLowerCase();
+
+        if (input === "") {
+            card.style.border = "1px solid #00ff99";
+            card.style.boxShadow = "none";
+        } else if (text.includes(input)) {
+            card.style.border = "2px solid yellow";
+            card.style.boxShadow = "0 0 20px yellow";
+        } else {
+            card.style.border = "1px solid #222";
+            card.style.boxShadow = "none";
         }
-        </script>
+    });
+}
+
+async function refreshLiveData() {
+    try {
+
+        const response = await fetch("/api/live-data");
+        const data = await response.json();
+
+        document.getElementById("totalVisits").innerText =
+            data.stats.total_visits;
+
+        document.getElementById("uniqueVisitors").innerText =
+            data.stats.unique_visitors;
+
+        document.getElementById("mobileVisits").innerText =
+            data.stats.mobile_visits;
+
+        document.getElementById("desktopVisits").innerText =
+            data.stats.desktop_visits;
+
+        document.getElementById("instagramVisits").innerText =
+            data.stats.instagram_visits;
+
+    } catch (error) {
+        console.log("Live update error:", error);
+    }
+}
+
+setInterval(refreshLiveData, 5000);
+
+</script>
     </body>
     </html>
     """
