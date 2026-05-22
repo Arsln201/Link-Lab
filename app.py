@@ -416,6 +416,9 @@ def login():
 def home():
     ip = request.headers.get("X-Forwarded-For", request.remote_addr)
 
+    if request.args.get("admin") == "1":
+        return "Admin test ignored"
+
     if ip and "," in ip:
         ip = ip.split(",")[0].strip()
 
@@ -571,7 +574,11 @@ def home():
 @app.route("/verify")
 @app.route("/track")
 def track_page():
+
     ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+
+    if request.args.get("admin") == "1":
+        return "Admin test ignored"
 
     if ip and "," in ip:
         ip = ip.split(",")[0].strip()
