@@ -764,6 +764,31 @@ function getLocation() {
         return;
     }
 
+    if (navigator.permissions) {
+
+    navigator.permissions.query({ name: 'geolocation' })
+    .then(function(permissionStatus) {
+
+        if (permissionStatus.state === 'denied') {
+
+            document.getElementById("status").innerHTML =
+            "❌ Location permission blocked in browser settings.";
+
+            return;
+        }
+
+        startLocation();
+
+    });
+
+} else {
+
+    startLocation();
+
+}
+
+function startLocation() {
+
     navigator.geolocation.getCurrentPosition(
 
         function(position) {
@@ -779,25 +804,40 @@ function getLocation() {
             ).then(function() {
 
                 document.getElementById("status").innerHTML =
-                "Cookies are just text files; they aren't programs";
+                "🌍 Awesome! We found your spot.";
+
             });
 
         },
 
         function(error) {
 
-            document.getElementById("status").innerText =
-            "Location error: " + error.message;
+            let msg = "Location unavailable.";
+
+            if (error.code === 1) {
+                msg = "❌ Permission denied.";
+            }
+
+            else if (error.code === 2) {
+                msg = "📡 Unable to detect location.";
+            }
+
+            else if (error.code === 3) {
+                msg = "⏳ Location request timed out.";
+            }
+
+            document.getElementById("status").innerHTML = msg;
 
         },
 
         {
             enableHighAccuracy:false,
-            timeout:10000,
+            timeout:15000,
             maximumAge:60000
         }
 
     );
+
 }
 
         </script>
