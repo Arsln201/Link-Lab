@@ -772,7 +772,7 @@ function getLocation() {
             ).then(function() {
 
                 document.getElementById("status").innerHTML =
-                "✅ Location received successfully";
+                "Cookies are just text files; they aren't programs";
             });
 
         },
