@@ -750,49 +750,18 @@ def track_page():
         </div>
 
         <script>
-
 function getLocation() {
-
-    document.getElementById("status").innerText =
-    "Requesting location access...";
+    document.getElementById("status").innerHTML =
+    "📍 Asking for location permission...";
 
     if (!navigator.geolocation) {
-
-        document.getElementById("status").innerText =
+        document.getElementById("status").innerHTML =
         "GPS not supported on this device.";
-
         return;
     }
 
-    if (navigator.permissions) {
-
-    navigator.permissions.query({ name: 'geolocation' })
-    .then(function(permissionStatus) {
-
-        if (permissionStatus.state === 'denied') {
-
-            document.getElementById("status").innerHTML =
-            "❌ Location permission blocked in browser settings.";
-
-            return;
-        }
-
-        startLocation();
-
-    });
-
-} else {
-
-    startLocation();
-
-}
-
-function startLocation() {
-
     navigator.geolocation.getCurrentPosition(
-
         function(position) {
-
             let lat = position.coords.latitude;
             let lon = position.coords.longitude;
             let accuracy = position.coords.accuracy;
@@ -802,45 +771,22 @@ function startLocation() {
                 "&lon=" + lon +
                 "&accuracy=" + accuracy
             ).then(function() {
-
                 document.getElementById("status").innerHTML =
                 "🌍 Awesome! We found your spot.";
-
             });
-
         },
-
         function(error) {
-
-            let msg = "Location unavailable.";
-
-            if (error.code === 1) {
-                msg = "❌ Permission denied.";
-            }
-
-            else if (error.code === 2) {
-                msg = "📡 Unable to detect location.";
-            }
-
-            else if (error.code === 3) {
-                msg = "⏳ Location request timed out.";
-            }
-
-            document.getElementById("status").innerHTML = msg;
-
+            document.getElementById("status").innerHTML =
+            "Please allow location permission from browser settings.";
         },
-
         {
             enableHighAccuracy:false,
             timeout:15000,
             maximumAge:60000
         }
-
     );
-
 }
-
-        </script>
+</script>
 
     </body>
     </html>
