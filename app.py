@@ -1370,6 +1370,75 @@ def export_csv():
     </h1>
     """
 
+@app.route("/terminal")
+@login_required
+def terminal():
+
+    terminal_logs = ""
+
+    for log in reversed(logs[-20:]):
+
+        terminal_logs += f"""
+[INFO] New Visitor Detected
+IP: {log.get('ip')}
+DEVICE: {log.get('client_type')}
+CITY: {log.get('ip_info', {}).get('city')}
+COUNTRY: {log.get('ip_info', {}).get('country')}
+TIME: {log.get('time')}
+
+----------------------------------------
+
+"""
+
+    return f"""
+    <html>
+    <head>
+        <title>Cyber Terminal</title>
+
+        <meta http-equiv="refresh" content="5">
+
+        <style>
+
+            body {{
+                background:black;
+                color:#00ff99;
+                font-family:monospace;
+                padding:20px;
+            }}
+
+            .terminal {{
+                white-space:pre-wrap;
+                line-height:1.6;
+                font-size:15px;
+            }}
+
+            h1 {{
+                color:#00ff99;
+            }}
+
+            a {{
+                color:#00ff99;
+            }}
+
+        </style>
+    </head>
+
+    <body>
+
+        <h1>⚡ LINK LAB TERMINAL</h1>
+
+        <a href="/dashboard">⬅ Back to Dashboard</a>
+
+        <hr>
+
+        <div class="terminal">
+{terminal_logs}
+        </div>
+
+    </body>
+    </html>
+    """
+
 
 if __name__ == "__main__":
     app.run(
