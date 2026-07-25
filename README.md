@@ -1,4 +1,4 @@
-# 🚀 Link Lab – Cyber Intelligence Dashboard
+#  Link Lab – Cyber Intelligence Dashboard
 
 Link Lab is a security-inspired visitor intelligence platform built using Flask, PostgreSQL, Render, and Neon Database.
 
@@ -6,28 +6,28 @@ It provides real-time analytics, GPS tracking, device detection, and interactive
 
 ---
 
-# 🌐 Live Demo
+#  Live Demo
 
 https://link-lab.onrender.com
 
 ---
 
-# ⚡ Features
+#  Features
 
-* 🔐 Login Authentication System
-* 📍 GPS Tracking
-* 🌍 IP Geolocation
-* 📱 Device Detection
-* 📊 Live Analytics Dashboard
-* 🗺 Interactive Visitor Map
-* 📁 CSV Export
-* 📄 JSON Export
-* ⚡ Real-Time Visitor Logs
-* 🎨 Premium Cyberpunk UI
+*  Login Authentication System
+*  GPS Tracking
+*  IP Geolocation
+*  Device Detection
+*  Live Analytics Dashboard
+*  Interactive Visitor Map
+*  CSV Export
+*  JSON Export
+*  Real-Time Visitor Logs
+*  Premium Cyberpunk UI
 
 ---
 
-# 🛠 Tech Stack
+#  Tech Stack
 
 * Python
 * Flask
@@ -39,7 +39,7 @@ https://link-lab.onrender.com
 
 ---
 
-# 📚 Purpose
+#  Purpose
 
 This project was created for learning:
 
@@ -52,12 +52,12 @@ This project was created for learning:
 
 ---
 
-# 🚀 Deployment
+#  Deployment
 
 Hosted on Render with PostgreSQL (Neon Database).
 
 ---
 
-# 👨‍💻 Developer
+#  Developer
 
 Mirza Arsalan
